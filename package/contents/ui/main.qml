@@ -29,19 +29,19 @@ PlasmoidItem {
     Mpris.MultiplexerModel {
         id: multiplexerModel
     }
-
+    
     width: 0;
     height: lyricText.contentHeight;
 
     // Need to set it full representation. Otherwise it will only display the applet icon declared in the metadata.json file on the panel.
-    preferredRepresentation: fullRepresentation
+    preferredRepresentation: fullRepresentation 
     Layout.preferredWidth: config_preferedWidgetWidth;
     Layout.preferredHeight: lyricText.contentHeight;
-
+    
     /**
         Set the background of this widget to be 'configurable' transparent or non transparent.
         https://develop.kde.org/docs/plasma/widget/properties/#x-plasma-api-x-plasma-mainscript
-    */
+    */    
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground | PlasmaCore.Types.ConfigurableBackground
 
     // Should ask uiYzzi if problem occurs.
@@ -63,7 +63,7 @@ PlasmoidItem {
     Item {
         id: iconsContainer
         anchors.right: parent.right
-        anchors.rightMargin: 1
+        anchors.rightMargin: 1 
         anchors.verticalCenter: parent.verticalCenter
         width: 5 * config_mediaControllItemSize + 4 * config_mediaControllSpacing
         height: config_mediaControllItemSize
@@ -71,7 +71,7 @@ PlasmoidItem {
 
         Image {
             source: backwardIcon
-            sourceSize.width: config_mediaControllItemSize
+            sourceSize.width: config_mediaControllItemSize 
             sourceSize.height: config_mediaControllItemSize
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
@@ -155,14 +155,14 @@ PlasmoidItem {
                     if (config_yesPlayMusicChecked) {
                         menuDialog.x = globalPos.x;
                         menuDialog.y = globalPos.y * 3.5;
-                        if (!dialogShowed) {
-                            menuDialog.show();
+                        if (!dialogShowed) { 
+                            menuDialog.show(); 
                             dialogShowed = true;
                         } else {
                             dialogShowed = false;
                             menuDialog.close();
                         }
-                    }
+                    } 
                 }
             }
         }
@@ -203,16 +203,16 @@ PlasmoidItem {
 
     /**
     ===============================================================================================================================================================================
-    Above are the UI related code.
+    Above are the UI related code. 
 
-    I am planning to disassemble them.
+    I am planning to disassemble them. 
 
     Below are backend logic related code.
     ===============================================================================================================================================================================
     */
 
     /**
-        Some music player doesn't actively pushing the position to mpris2 datasource.
+        Some music player doesn't actively pushing the position to mpris2 datasource. 
         So have to send mpris2 datasource a signal to let'em pull the current position of the song from the player.
     */
     Timer {
@@ -235,19 +235,19 @@ PlasmoidItem {
             /**
                 Use translator if you don't understand the comment... Too lazy to rewrite it in English.
 
-                如果
+                如果 
                     1. mpris 里面，当前播放音乐的title和artists都为空, 则尝试重置。
                     2. mpris 里面，当前播放器和之前的播放器不一样，就重置。
                     3. 设置 里面， 当前播放器和之前设置的播放器不一样(即更新了当前追踪的播放器),就重置。
                     4. 前后歌名，前后歌手不一样，重置。
-
+                
                 重置后，重新判断当前预期的播放器是哪个。并且开启对应的timer（线程）
-            */
+            */ 
             if (
                 !currentMediaTitle && !currentMediaArtists ||
                 mpris2PreviousPlayerIdentity != mpris2CurrentPlayerIdentity ||
                 prevExpectedPlayerIdentity != currExpectedPlayerIdentity ||
-                currentMediaTitle != previousMediaTitle ||
+                currentMediaTitle != previousMediaTitle || 
                 currentMediaArtists != previousMediaArtists
             ){
                 reset();
@@ -284,12 +284,12 @@ PlasmoidItem {
         id: lxMusicTimer
         interval: 200
         running: false
-        repeat: true
+        repeat: true 
         onTriggered: {
             lxHandler();
         }
     }
-
+    
     /**
         Same as above, only one Lyric Fetching Timer will be running.
         If the:
@@ -299,7 +299,7 @@ PlasmoidItem {
         Then we will stop the timer and start a new one.
 
         Otherwise, we will keep the timer running and fetch the lyric from the lrclib API.
-
+        
     */
     Timer {
         id: compatibleModeTimer
@@ -333,7 +333,7 @@ PlasmoidItem {
         interval: 1
         running: false
         repeat: true
-        onTriggered: {
+        onTriggered: { 
             // If the current playing media source in mpris2 datasource doesn't match the expected media source, then no lyric will be displayed
             if ((currExpectedPlayerIdentity !== 'compatible') && (mpris2CurrentPlayerIdentity !== currExpectedPlayerIdentity)) {
                 lyricText.text = " ";
@@ -390,7 +390,7 @@ PlasmoidItem {
     // Retrieve the identity of current music/media player
     // YesPlayMusic Spotify lx-music-desktop xxx
     property string mpris2CurrentPlayerIdentity: mpris2Model.currentPlayer?.identity ?? ""
-
+        
     // Retrieve the current media position (in microseconds)
     property int position: mpris2Model.currentPlayer?.position ?? 0
 
@@ -398,8 +398,8 @@ PlasmoidItem {
         A list of dictionaries. Each dictionary contains a timestamp and the corresponding lyric. Below is an example
 
         [
-            {timestamp: 1, lyric: "Hello"},
-            {timestamp: 2, lyric: "World"},
+            {timestamp: 1, lyric: "Hello"}, 
+            {timestamp: 2, lyric: "World"}, 
             {timestamp: 3, lyric: "!"}
         ]
     */
@@ -455,15 +455,15 @@ PlasmoidItem {
     // Construct the lrclib's request url
     property string lrcQueryUrl: {
         if (needFallback) { // 如果失败了就用歌名做一次模糊查询。lrclib只支持模糊查询一个field.所以只能专辑|歌手名|歌名选一个， 很明显歌名的结果最准确。
-            return lrclib_base_url + "/api/search" + "?track_name=" + encodeURIComponent(currentMediaTitle) +
-                  "&artist_name=" + encodeURIComponent(currentMediaArtists) + "&album_name=" + encodeURIComponent(currentMediaAlbum) + "&q="
+            return lrclib_base_url + "/api/search" + "?track_name=" + encodeURIComponent(currentMediaTitle) + 
+                  "&artist_name=" + encodeURIComponent(currentMediaArtists) + "&album_name=" + encodeURIComponent(currentMediaAlbum) + "&q=" 
                   + encodeURIComponent(currentMediaTitle);
         } else { // accruate matching
-            return lrclib_base_url + "/api/search" + "?track_name=" + encodeURIComponent(currentMediaTitle) +
+            return lrclib_base_url + "/api/search" + "?track_name=" + encodeURIComponent(currentMediaTitle) + 
                   "&artist_name=" + encodeURIComponent(currentMediaArtists) + "&album_name=" + encodeURIComponent(currentMediaAlbum);
         }
     }
-
+    
     // exception handling: no lyric => only display title - artists
     property string lrc_not_exists: {
         if (currentMediaTitle && currentMediaArtists) {
@@ -593,10 +593,10 @@ PlasmoidItem {
         If the current media title is advertisement, then we will not query the API. This happens in apps like Spotify and the user is not a premium user.
         Also, if we've already found the lyric, then we will not spam querying the API.
         ================================================================================================================================================================================
-        Elsewise, Start querying the lrclib API for the current media title and artists. If the response is empty, then we will go to the fall back mode.
+        Elsewise, Start querying the lrclib API for the current media title and artists. If the response is empty, then we will go to the fall back mode. 
         Specifically speaking, check the details in lrcQueryUrl variable.
         ================================================================================================================================================================================
-        If the response is not empty and the current playing music is different from the previous plyaing music, then we will reset the timer, parse the lyric and display it on the screen.
+        If the response is not empty and the current playing music is different from the previous plyaing music, then we will reset the timer, parse the lyric and display it on the screen. 
 
     */
     function fetchLyricsCompatibleMode() {
@@ -634,11 +634,11 @@ PlasmoidItem {
                                 isCompatibleLRCFound = true;
                                 parseLyric(responseItem.syncedLyrics);
                                 break;
-                            }
+                            } 
                         }
                     }
 
-                    // If reached here, it means the lrc file is just broken or doesn't follow the standard format. No need to fallback again since actually we can retrieve it.
+                    // If reached here, it means the lrc file is just broken or doesn't follow the standard format. No need to fallback again since actually we can retrieve it. 
                     isCompatibleLRCFound = true;
                     lyricText.text = lrc_not_exists;
                 }
@@ -646,7 +646,7 @@ PlasmoidItem {
         };
         xhr.send();
     }
-
+ 
 
     function log() {
         console.log("currentMediaArtists: ", currentMediaArtists);
@@ -670,13 +670,13 @@ PlasmoidItem {
 
     function previous() {
         if (!isWrongPlayer()) {
-           mpris2Model.currentPlayer.Previous();
+           mpris2Model.currentPlayer.Previous(); 
         }
     }
 
     function play() {
         if (!isWrongPlayer()) {
-           mpris2Model.currentPlayer.Play();
+           mpris2Model.currentPlayer.Play(); 
         }
     }
 
@@ -700,7 +700,7 @@ PlasmoidItem {
             } else {
                 return true;
             }
-        }
+        } 
         return false;
     }
 
@@ -711,7 +711,7 @@ PlasmoidItem {
         } else {
             if (!isYPMLyricFound) {
                 reset();
-                fetchMediaIdYPM();
+                fetchMediaIdYPM();  
             }
         }
     }
@@ -759,8 +759,8 @@ PlasmoidItem {
 
     /**
         This part is going to be enabled after we have a better backend instead of hybriding the GUI and backend logic in this same main.qml file. A qml file with more than 1000
-    lines of code looks really horrible. Plus the Thus I'm planning to refact the current code with a C++ or Python backend. Or, alternatively, just use tauri or electron to rewrite
-    this widget with cross platform capability.
+    lines of code looks really horrible. Plus the Thus I'm planning to refact the current code with a C++ or Python backend. Or, alternatively, just use tauri or electron to rewrite 
+    this widget with cross platform capability. 
 
         The backend should contain all the lyrics fetching logic, and exposed locally as a general lyrics fetching API. And this qml widget will only serve as frontend -- respon
     -sible for displaying lyrics and those icons.
@@ -773,12 +773,12 @@ PlasmoidItem {
     // property string csrf_token: ""
     // property string neteaseID: ""
     // property bool currentMusicLiked: false
-
+    
     // property string base64Image: "" # should be used as QR code login
 
     // PlasmaCore.Dialog {
     //     id: menuDialog
-
+        
     //     visible: false
     //     width: column.implicitWidth
     //     height: column.implicitHeight
@@ -809,7 +809,7 @@ PlasmoidItem {
     //                 userInfoMenuItem.visible = true;
     //                 cookieTextField.visible = false;
     //                 neteaseID = cookieTextField.text
-    //                 //need to add a cookie validation in the future
+    //                 //need to add a cookie validation in the future 
     //             }
     //         }
 
@@ -837,7 +837,7 @@ PlasmoidItem {
     //             visible: true
     //             text: "需要登录"
     //         }
-
+            
     //         PlasmaComponents.MenuItem {
     //             id: logout
     //             visible: true
@@ -846,7 +846,7 @@ PlasmoidItem {
     //             onTriggered: {
     //                 ypmLogined = false;
     //                 neteaseID = ""
-    //                 ypmSongsListened.text = "";
+    //                 ypmSongsListened.text = ""; 
     //                 ypmFollowed.text = "";
     //                 ypmFollow.text = "";
     //                 ypmCreateDays.text = "";
