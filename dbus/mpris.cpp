@@ -3,19 +3,19 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 
-mpris::mpris(QObject *parent)
+Mpris::Mpris(QObject *parent)
 		: QObject(parent), m_asText(""), m_serviceName("")
 {
 		// 构造函数不接收服务名参数，只做初始化。
 		// 属性监听将在找到服务后动态设置。
 }
 
-QString mpris::asText() const
+QString Mpris::asText() const
 {
 		return m_asText;
 }
 
-QString mpris::findAndGetAsText(const QString &identity)
+QString Mpris::findAndGetAsText(const QString &identity)
 {
 		// 清除旧的服务名和文本，以备重新搜索。
 		m_serviceName = "";
@@ -91,7 +91,7 @@ QString mpris::findAndGetAsText(const QString &identity)
 		return "";
 }
 
-void mpris::onPropertiesChanged(const QString &interfaceName, const QVariantMap &changedProperties, const QStringList &invalidatedProperties)
+void Mpris::onPropertiesChanged(const QString &interfaceName, const QVariantMap &changedProperties, const QStringList &invalidatedProperties)
 {
 		// 嵌套层级 1: 检查接口名称是否匹配且属性列表不为空。
 		if (interfaceName != PLAYER_INTERFACE || changedProperties.isEmpty()) {
