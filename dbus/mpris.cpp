@@ -39,10 +39,10 @@ QString Mpris::findAndGetAsText(const QString &identity)
 				}
 
 				QDBusInterface interface(
-						service,
-						MPRIS2_PATH,
-						PLAYER_INTERFACE,
-						connection
+					service,
+				MPRIS2_PATH,
+				PROPERTIES_INTERFACE, // 使用正确的 Properties 接口
+				connection
 				);
 
 				// 检查接口是否有效。
