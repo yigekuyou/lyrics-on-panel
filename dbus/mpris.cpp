@@ -27,17 +27,18 @@ QString Mpris::findAndGetAsText(const QString &identity)
 		QDBusReply<QStringList> reply = dbusInterface.call("ListNames");
 
 		if (!reply.isValid()) {
+			qDebug() << "Failed to list D-Bus names:" << reply.error().message();
 				return "";
 		}
 
 		QStringList services = reply.value();
-
+		qDebug() << "Found D-Bus services:" << services;
 		for (const QString& service : services) {
 				// 检查服务名称前缀。
 				if (!service.startsWith(MPRIS2_PREFIX)) {
 						continue;
 				}
-
+				qDebug() << "Checking MPRIS service:" << service;
 				QDBusInterface interface(
 					service,
 				MPRIS2_PATH,
@@ -47,16 +48,20 @@ QString Mpris::findAndGetAsText(const QString &identity)
 
 				// 检查接口是否有效。
 				if (!interface.isValid()) {
-						continue;
+					qDebug() << "Interface is not valid for service:" << service;
+					continue;
 				}
 
 				// 同步获取 "Identity" 属性并检查是否匹配。
 				QDBusReply<QVariant> identityReply = interface.call("Get", PLAYER_INTERFACE, "Identity");
 				if (!identityReply.isValid()) {
+					qDebug() << "Failed to get Identity for service:" << service << "Error:" << identityReply.error().message();
 						continue;
 				}
 				QString playerIdentity = identityReply.value().toString();
+				qDebug() << "Service" << service << "has Identity:" << playerIdentity;
 				if (playerIdentity != identity) {
+					qDebug() << "Identity does not match. Skipping.";
 						continue;
 				}
 
