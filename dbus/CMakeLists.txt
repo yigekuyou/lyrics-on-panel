@@ -7,16 +7,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 COMPONENTS Quick DBus Qml REQUIRED)
 add_library(mpris SHARED)
 qt_add_qml_module(mpris
-    URI "com.mpris.lyric"
+    URI "io.github.lyric"
     VERSION 1.0
     SOURCES mpris.cpp mpris.h
 )
 
-install(SCRIPT ${deploy_script})
 target_compile_definitions(mpris
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(mpris
     PRIVATE Qt6::Quick Qt6::DBus Qt6::Qml)
 
-target_include_directories(mpris PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} Qt6::DBus)
+target_include_directories(mpris PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} Qt6::DBus Qt6::Quick Qt6::Qml )
 install(TARGETS mpris)
+install(TARGETS appletdecorationplugin DESTINATION ${KDE_INSTALL_QMLDIR}/io/github/lyric)
+
+
+install(FILES qmldir DESTINATION ${KDE_INSTALL_QMLDIR}/io/github/lyric)
