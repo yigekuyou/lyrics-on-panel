@@ -14,7 +14,7 @@ inline constexpr QLatin1String MPRIS2_PATH{"/org/mpris/MediaPlayer2"};
 inline constexpr QLatin1String MPRIS2_PREFIX{"org.mpris.MediaPlayer2."};
 inline constexpr QLatin1String PROPERTIES_INTERFACE{"org.freedesktop.DBus.Properties"};
 inline constexpr QLatin1String PLAYER_INTERFACE{"org.mpris.MediaPlayer2.Player"};
-
+inline constexpr QLatin1String MPRIS2_INTERFACE{"org.mpris.MediaPlayer2"};
 class Mpris : public QObject {
 		Q_OBJECT
 		QML_ELEMENT

@@ -53,7 +53,7 @@ QString Mpris::findAndGetAsText(const QString &identity)
 				}
 
 				// 同步获取 "Identity" 属性并检查是否匹配。
-				QDBusReply<QVariant> identityReply = interface.call("Get", PLAYER_INTERFACE, "Identity");
+				QDBusReply<QVariant> identityReply = interface.call("Get", MPRIS2_INTERFACE, "Identity");
 				if (!identityReply.isValid()) {
 					qDebug() << "Failed to get Identity for service:" << service << "Error:" << identityReply.error().message();
 						continue;
@@ -71,11 +71,27 @@ QString Mpris::findAndGetAsText(const QString &identity)
 				// 接下来获取元数据，并将其扁平化处理。
 				QDBusReply<QVariant> metadataReply = interface.call("Get", PLAYER_INTERFACE, "Metadata");
 				if (metadataReply.isValid()) {
-						QVariantMap metadata = metadataReply.value().value<QVariantMap>();
+						QVariant metadataVariant = metadataReply.value();
+
+						// 显式将 QVariant 转换为 QDBusArgument
+						const QDBusArgument &arg = metadataVariant.value<QDBusArgument>();
+						QVariantMap metadata;
+
+						// 使用 QDBusArgument 的流操作符来提取 QMap
+						arg >> metadata;
+
+						qDebug() << "Metadata QMap size:" << metadata.size();
+						qDebug() << "Full metadata map:" << metadata;
+
 						if (metadata.contains("xesam:asText")) {
 								m_asText = metadata.value("xesam:asText").toString();
+								qDebug() << "Found lyrics:" << m_asText;
 								emit asTextChanged();
+						} else {
+								qDebug() << "No 'xesam:asText' key found in metadata.";
 						}
+				} else {
+						qDebug() << "Failed to get Metadata. Error:" << metadataReply.error().message();
 				}
 
 				// 连接到这个特定服务的属性变化信号。

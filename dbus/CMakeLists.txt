@@ -17,3 +17,4 @@ generate_export_header(dbuslyric)
 
 target_include_directories(dbuslyric PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} Qt6::DBus Qt6::Quick Qt6::Qml )
 ecm_finalize_qml_module(dbuslyric)
+add_subdirectory(test)
