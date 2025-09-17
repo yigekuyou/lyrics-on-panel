@@ -2,7 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.15
-
+import com.mpris.lyric 1.0 as lyricSource
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.components 3.0 as PlasmaComponents
@@ -289,7 +289,7 @@ PlasmoidItem {
             lxHandler();
         }
     }
-    
+
     /**
         Same as above, only one Lyric Fetching Timer will be running.
         If the:
@@ -308,10 +308,19 @@ PlasmoidItem {
         repeat: true
         onTriggered: {
             // console.log("reached here")
+	mpris.findAndGetAsText(mpris2CurrentPlayerIdentity)
+	if (!mpris.asText === ""){
+		parseLyric(mpris.asText)
+		isCompatibleLRCFound = true;
+	}
             if ((currentMediaArtists === "" && currentMediaTitle === "") || (currentMediaTitle != previousMediaTitle) || currentMediaArtists != previousMediaArtists) {
                 reset();
                 // console.log("keeping reset()")
             } else {
+		    if (mpris2CurrentPlayerIdentity === "YesPlayMusic") {
+			    // console.log("YPM Timer Triggered");
+			    ypmHandler();
+		    } else
                 if (mpris2CurrentPlayerIdentity === "YesPlayMusic") {
                     // console.log("YPM Timer Triggered");
                     ypmHandler();
@@ -726,7 +735,6 @@ PlasmoidItem {
             }
         }
     }
-
     /**
         1. Stop the compatible mode timer and yesplaymusic timer.
         2. Set the previous media title and artists to the current media title and artists.
