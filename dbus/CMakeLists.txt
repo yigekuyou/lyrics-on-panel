@@ -18,8 +18,8 @@ target_link_libraries(mpris
     PRIVATE Qt6::Quick Qt6::DBus Qt6::Qml)
 
 target_include_directories(mpris PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} Qt6::DBus Qt6::Quick Qt6::Qml )
-install(TARGETS mpris)
-install(TARGETS appletdecorationplugin DESTINATION ${KDE_INSTALL_QMLDIR}/io/github/lyric)
+
+install(TARGETS mpris DESTINATION ${KDE_INSTALL_QMLDIR}/io/github/lyric)
 
 
 install(FILES qmldir DESTINATION ${KDE_INSTALL_QMLDIR}/io/github/lyric)
