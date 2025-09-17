@@ -11,6 +11,11 @@ qt_add_qml_module(mpris
     VERSION 1.0
     SOURCES mpris.cpp mpris.h
 )
+qt_generate_deploy_qml_app_script(
+    TARGET mpris
+    FILENAME_VARIABLE deploy_script
+)
+install(SCRIPT ${deploy_script})
 target_compile_definitions(mpris
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(mpris
