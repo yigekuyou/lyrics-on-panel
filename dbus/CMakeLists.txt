@@ -5,15 +5,12 @@ project(mpris VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 6.2 COMPONENTS Quick DBus Qml REQUIRED)
-add_library(mpris SHARED mpris.cpp)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH} ${CMAKE_MODULE_PATH})
+add_library(mpris SHARED)
 qt_add_qml_module(mpris
     URI "com.mpris.lyric"
     VERSION 1.0
     SOURCES mpris.cpp mpris.h
-)
-qt_generate_deploy_qml_app_script(
-    TARGET mpris
-    FILENAME_VARIABLE deploy_script
 )
 install(SCRIPT ${deploy_script})
 target_compile_definitions(mpris
