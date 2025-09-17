@@ -33,7 +33,7 @@ QString mpris::findAndGetAsText(const QString &identity)
 		QStringList services = reply.value();
 
 		for (const QString& service : services) {
-				// 嵌套层级 1: 检查服务名称前缀。
+				// 检查服务名称前缀。
 				if (!service.startsWith(MPRIS2_PREFIX)) {
 						continue;
 				}
@@ -45,12 +45,12 @@ QString mpris::findAndGetAsText(const QString &identity)
 						connection
 				);
 
-				// 嵌套层级 2: 检查接口是否有效。
+				// 检查接口是否有效。
 				if (!interface.isValid()) {
 						continue;
 				}
 
-				// 嵌套层级 3: 同步获取 "Identity" 属性并检查是否匹配。
+				// 同步获取 "Identity" 属性并检查是否匹配。
 				QDBusReply<QVariant> identityReply = interface.call("Get", PLAYER_INTERFACE, "Identity");
 				if (!identityReply.isValid()) {
 						continue;

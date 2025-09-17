@@ -13,7 +13,7 @@ target_sources(dbuslyric
 )
 target_link_libraries(dbuslyric
     PRIVATE Qt6::Quick Qt6::DBus Qt6::Qml)
-generate_export_header(lyric)
+generate_export_header(dbuslyric)
 
 target_include_directories(dbuslyric PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} Qt6::DBus Qt6::Quick Qt6::Qml )
 ecm_finalize_qml_module(dbuslyric)
