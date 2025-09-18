@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
 	QGuiApplication app(argc, argv);
-
+		qDebug() << "Application started in main function.";
 	QQmlApplicationEngine engine;
 	QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
 									 &app, []() { QCoreApplication::exit(-1); },
