@@ -2,12 +2,12 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.1
 import QtQuick.Window 2.15
-import io.github.lyric 1.0 as Dbuslyric
+import io.github.lyric 1.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.components 3.0 as PlasmaComponents
 import org.kde.plasma.plasma5support as Plasma5Support
-import org.kde.plasma.private.mpris as Mpris
+import org.kde.plasma.private.mpris as Mprisplasma
 
 
 /**
@@ -18,21 +18,22 @@ https://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html
 https://app.readthedocs.org/projects/mpris2/downloads/pdf/latest/
 */
 
+
 PlasmoidItem {
     id: root
 
-    Mpris.Mpris2Model {
+    Mprisplasma.Mpris2Model {
         id: mpris2Model
     }
 
     // Seems obsolete by KDE Plasma 6.
-    Mpris.MultiplexerModel {
+    Mprisplasma.MultiplexerModel {
         id: multiplexerModel
     }
-    Dbuslyric.mpris {
-	    id:lyricSource
-}
 
+    Mpris {
+	    id: lyricSource
+    }
     width: 0;
     height: lyricText.contentHeight;
 
@@ -315,11 +316,7 @@ PlasmoidItem {
             if ((currentMediaArtists === "" && currentMediaTitle === "") || (currentMediaTitle != previousMediaTitle) || currentMediaArtists != previousMediaArtists) {
                 reset();
                 // console.log("keeping reset()")
-            } else {	lyricSource.findAndGetAsText(mpris2CurrentPlayerIdentity)
-	if (!lyricSource.asText === ""){
-		parseLyric(lyricSource.asText)
-		isCompatibleLRCFound = true;
-	}
+            } else {
 		    if (mpris2CurrentPlayerIdentity === "YesPlayMusic") {
 			    // console.log("YPM Timer Triggered");
 			    ypmHandler();
@@ -331,10 +328,10 @@ PlasmoidItem {
                     // console.log("lx music triggered")
                     lxHandler();
                 } else {
-                    if (!isCompatibleLRCFound || needFallback) {
-                        //console.log("spotify compatible mode triggered")
-                        fetchLyricsCompatibleMode();
-                    }
+			lyricSource.findAndGetAsText(mpris2CurrentPlayerIdentity);
+			parseLyric(lyricSource.asText);
+			isCompatibleLRCFound=true;
+			needFallback=false;
                 }
             }
         }
@@ -611,7 +608,7 @@ PlasmoidItem {
         If the response is not empty and the current playing music is different from the previous plyaing music, then we will reset the timer, parse the lyric and display it on the screen.
 
     */
-    function fetchLyricsCompatibleMode() {
+/*    function fetchLyricsCompatibleMode() {
         if (currentMediaTitle === "Advertisement" || isCompatibleLRCFound) {
             return;
         }
@@ -636,7 +633,6 @@ PlasmoidItem {
                             {"id":13957,"name":"Jar Of Love","trackName":"Jar Of Love","artistName":"Wanting","albumName":"Everything In The World", xxx},
                             {"id":18131162,"name":"Jar Of Love","trackName":"Jar Of Love","artistName":"Wanting 曲婉婷","albumName":"Everything In The World","duration":229.026667, xxxx}
                         ]
-                    */
                     for (var i = 0; i < response.length; i++) {
                         var responseItem = response[i]
                         if (previousLrcId !== responseItem.id.toString()) {
@@ -658,7 +654,7 @@ PlasmoidItem {
         };
         xhr.send();
     }
-
+*/
 
     function log() {
         console.log("currentMediaArtists: ", currentMediaArtists);
