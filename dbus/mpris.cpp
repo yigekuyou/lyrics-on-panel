@@ -140,11 +140,10 @@ void Mpris::onGetMetadataFinished(QDBusPendingCallWatcher *watcher)
 			// 显式检查类型是否为 QVariantMap
 			if (metadataVariant.isValid() && metadataVariant.typeId() == QMetaType::QVariantMap) {
 					metadata = metadataVariant.value<QVariantMap>();
-			} else {
-					const QDBusArgument &arg = metadataVariant.value<QDBusArgument>();
-					// 使用 QDBusArgument 的流操作符来提取 QMap
-					arg >> metadata;
-					qDebug() << "Metadata property is not a valid QVariantMap.";
+			}
+			if (metadataVariant.canConvert<QDBusArgument>()){
+			const QDBusArgument &arg = metadataVariant.value<QDBusArgument>();
+			arg >> metadata; // Use the stream operator to extract the data.
 			}
 			qDebug() << "Full metadata map:" << metadata; // 确保这行能看到完整的QMap
 
