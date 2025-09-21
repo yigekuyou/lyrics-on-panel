@@ -88,7 +88,7 @@ PlasmoidItem {
 	    id: lyricScrollAnimation
 	    target: lyricListView
 	    property: "contentX"
-	    easing.type: Easing.OutCubic
+	    easing.type: Easing.Linear
     }
     Item {
 	    id: iconsContainer
