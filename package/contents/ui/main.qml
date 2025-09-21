@@ -71,12 +71,13 @@ PlasmoidItem {
 	    clip: true
 	    flickableDirection: Flickable.AutoFlickDirection
 	    orientation: ListView.Horizontal // 设置为水平滚动
+	    cacheBuffer: 1
 	    model: lyricsWTimes
 	    // 歌词条目的委托
 	    delegate: Text {
-		text: model.lyric
+		    width: lyricListView.width
+		    text: model.lyric
 		horizontalAlignment: Text.AlignRight
-		width: lyricListView.width
 		    color: config_lyricTextColor
 		    font.pixelSize: config_lyricTextSize
 		    font.bold: config_lyricTextBold
@@ -214,6 +215,7 @@ PlasmoidItem {
 	    reset()
 	    if(Plasmoid.status){
 		    parseLyric(lyricSource.asText)
+		    lyricListView.cacheBuffer = lyricsWTimes.count
 	}
 }
     Connections {
