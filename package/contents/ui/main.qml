@@ -71,7 +71,8 @@ PlasmoidItem {
 	    clip: true
 	    flickableDirection: Flickable.AutoFlickDirection
 	    orientation: ListView.Horizontal // 设置为水平滚动
-	    cacheBuffer: 1
+	    cacheBuffer:lyricsWTimes.count
+
 	    model: lyricsWTimes
 	    // 歌词条目的委托
 	    delegate: Text {
@@ -215,7 +216,6 @@ PlasmoidItem {
 	    reset()
 	    if(Plasmoid.status){
 		    parseLyric(lyricSource.asText)
-		    lyricListView.cacheBuffer = lyricsWTimes.count
 	}
 }
     Connections {
@@ -272,7 +272,7 @@ PlasmoidItem {
 				if (lyricsWTimes.get(currentLyricIndex).lyric.length * config_lyricTextSize > lyricListView.width)
 				{
 					// 平滑滚动到目标位置
-					lyricScrollAnimation.from= lyricListView.contentX - lyricsWTimes.get(currentLyricIndex).lyric.length * config_lyricTextSize
+					lyricScrollAnimation.from= lyricListView.contentX - lyricsWTimes.get(currentLyricIndex).lyric.length * config_lyricTextSize-lyricListView.spacing/2
 					lyricScrollAnimation.to =lyricListView.contentX
 					lyricScrollAnimation.start();
 				}
@@ -422,6 +422,8 @@ PlasmoidItem {
         prevExpectedPlayerIdentity = "";
         lyricsWTimes.clear();
 	lyricScrollAnimation.stop();
-	prevNonEmptyLyric: ""
+	prevNonEmptyLyric= ""
+	lyricListView.positionViewAtBeginning()
+
     }
 }
