@@ -92,7 +92,6 @@ PlasmoidItem {
 		     lyricListView.positionViewAtIndex(currentLyricIndex, ListView.Right)
 		     lyricScrollAnimation.stop();
 			lyricMetrics.text = lyricsWTimes.get(currentLyricIndex).lyric;
-			console.log(lyricMetrics.advanceWidth,"大于",width)
 		     if (lyricMetrics.advanceWidth > width) {
 				if (currentLyricIndex + 2 < lyricsWTimes.count) {
 				lyricScrollAnimation.duration = (lyricsWTimes.get(currentLyricIndex+1).time - mprisCurrentPlayingSongTimeMS)/1000 ; //这是从计算器里验证的ms
