@@ -56,11 +56,14 @@ PlasmoidItem {
 
     // Should ask uiYzzi if problem occurs.
     Plasmoid.status: mpris2Model.currentPlayer?.canControl || !config_hideItemWhenNoControlChecked ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.HiddenStatus;
-
+    TextMetrics {
+	    id: lyricMetrics
+	    // 绑定到 Label 的 font 和 text
+	    font.pixelSize: config_lyricTextSize
+    }
     ListView {
 	    id: lyricListView
 	    interactive: false
-	    spacing: lyricListView.width/2
 	    height: parent.height
 	    // 将 ListView 的右边界与 iconsContainer 的左边界对齐
 	    anchors.right: iconsContainer.left
@@ -72,11 +75,11 @@ PlasmoidItem {
 	    flickableDirection: Flickable.AutoFlickDirection
 	    orientation: ListView.Horizontal // 设置为水平滚动
 	    cacheBuffer:lyricsWTimes.count
-
 	    model: lyricsWTimes
+	    spacing:config_preferedWidgetWidth
 	    // 歌词条目的委托
-	    delegate: Text {
-		    width: lyricListView.width
+	    delegate: PlasmaComponents.Label {
+		Layout.preferredWidth: implicitWidth
 		    text: model.lyric
 		horizontalAlignment: Text.AlignRight
 		    color: config_lyricTextColor
@@ -85,6 +88,23 @@ PlasmoidItem {
 		    font.italic: config_lyricTextItalic
 		    anchors.verticalCenterOffset: config_lyricTextVerticalOffset
 	     }
+	     onCurrentIndexChanged: {
+		     lyricListView.positionViewAtIndex(currentLyricIndex, ListView.Right)
+		     lyricScrollAnimation.stop();
+			lyricMetrics.text = lyricsWTimes.get(currentLyricIndex).lyric;
+		     console.log(currentLyricIndex)
+		     if (lyricMetrics.advanceWidth > width) {
+			     lyricScrollAnimation.duration = (lyricsWTimes.get(currentLyricIndex+1).time - mprisCurrentPlayingSongTimeMS)/1000; //这是从计算器里验证的ms
+			     lyricScrollAnimation.from = contentX - width ;
+			     lyricScrollAnimation.to = contentX - width + lyricMetrics.advanceWidth;
+			     lyricScrollAnimation.start();
+		     }
+	     }
+    }
+    Binding {
+	    target: lyricListView
+	    property: "currentIndex"
+	    value: currentLyricIndex
     }
     PropertyAnimation {
 	    id: lyricScrollAnimation
@@ -253,29 +273,15 @@ PlasmoidItem {
 		    // If the current playing media source in mpris2 datasource doesn't match the expected media source, then no lyric will be displayed
 		    for (let i = 0; i < lyricsWTimes.count; i++) {
 			    if (lyricsWTimes.get(i).time >= mprisCurrentPlayingSongTimeMS) {
-				if (prevNonEmptyLyric  === lyricsWTimes.get(i-1).lyric ){
-					    return
-				}
-				lyricScrollAnimation.duration = (lyricsWTimes.get(i).time - mprisCurrentPlayingSongTimeMS)/1000; //这是从计算器里验证的ms
 				currentLyricIndex = i > 0 ? i - 1 : 0;
-				prevNonEmptyLyric=lyricsWTimes.get(i-1).lyric
 				break
 			    }else{
 				    if (!i){continue}
 				    if(i>currentLyricIndex){
 					currentLyricIndex =i
-					lyricScrollAnimation.duration=(lyricListView.width)*700
 				}
 			}
 		}
-				lyricListView.positionViewAtIndex(currentLyricIndex, ListView.Right);
-				if (lyricsWTimes.get(currentLyricIndex).lyric.length * config_lyricTextSize > lyricListView.width)
-				{
-					// 平滑滚动到目标位置
-					lyricScrollAnimation.from= lyricListView.contentX - lyricsWTimes.get(currentLyricIndex).lyric.length * config_lyricTextSize-lyricListView.spacing/2
-					lyricScrollAnimation.to =lyricListView.contentX
-					lyricScrollAnimation.start();
-				}
 	    }
     }
     // Global constant
