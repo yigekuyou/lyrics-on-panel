@@ -70,7 +70,6 @@ PlasmoidItem {
 	    anchors.left: parent.left
 	    anchors.verticalCenter: parent.verticalCenter
 	    anchors.verticalCenterOffset: config_lyricTextVerticalOffset
-	    width: Layout.preferredWidth -iconsContainer.width
 	    clip: true
 	    flickableDirection: Flickable.AutoFlickDirection
 	    orientation: ListView.Horizontal // 设置为水平滚动
@@ -93,14 +92,14 @@ PlasmoidItem {
 		     lyricListView.positionViewAtIndex(currentLyricIndex, ListView.Right)
 		     lyricScrollAnimation.stop();
 			lyricMetrics.text = lyricsWTimes.get(currentLyricIndex).lyric;
+			console.log(lyricMetrics.advanceWidth,"大于",width)
 		     if (lyricMetrics.advanceWidth > width) {
 				if (currentLyricIndex + 2 < lyricsWTimes.count) {
 				lyricScrollAnimation.duration = (lyricsWTimes.get(currentLyricIndex+1).time - mprisCurrentPlayingSongTimeMS)/1000 ; //这是从计算器里验证的ms
-
 				}
-				if( (lyricsWTimes.get(currentLyricIndex).time - mprisCurrentPlayingSongTimeMS) <0)
+				if( (lyricsWTimes.get(currentLyricIndex+1).time - mprisCurrentPlayingSongTimeMS) <0)
 			     {
-				     lyricScrollAnimation.duration=lyricMetrics.advanceWidth*700
+				     lyricScrollAnimation.duration=lyricMetrics.advanceWidth * 200
 			     }
 			     lyricScrollAnimation.from = contentX - width ;
 			     lyricScrollAnimation.to = contentX - width + lyricMetrics.advanceWidth;
