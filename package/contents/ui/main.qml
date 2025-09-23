@@ -89,15 +89,23 @@ PlasmoidItem {
 		    anchors.verticalCenterOffset: config_lyricTextVerticalOffset
 	     }
 	     onCurrentIndexChanged: {
+		     if(lyricsWTimes.count > 0 && currentLyricIndex >= 0 ){
 		     lyricListView.positionViewAtIndex(currentLyricIndex, ListView.Right)
 		     lyricScrollAnimation.stop();
 			lyricMetrics.text = lyricsWTimes.get(currentLyricIndex).lyric;
-		     console.log(currentLyricIndex)
 		     if (lyricMetrics.advanceWidth > width) {
-			     lyricScrollAnimation.duration = (lyricsWTimes.get(currentLyricIndex+1).time - mprisCurrentPlayingSongTimeMS)/1000; //这是从计算器里验证的ms
+				if (currentLyricIndex + 2 < lyricsWTimes.count) {
+				lyricScrollAnimation.duration = (lyricsWTimes.get(currentLyricIndex+1).time - mprisCurrentPlayingSongTimeMS)/1000 ; //这是从计算器里验证的ms
+
+				}
+				if( (lyricsWTimes.get(currentLyricIndex).time - mprisCurrentPlayingSongTimeMS) <0)
+			     {
+				     lyricScrollAnimation.duration=lyricMetrics.advanceWidth*700
+			     }
 			     lyricScrollAnimation.from = contentX - width ;
 			     lyricScrollAnimation.to = contentX - width + lyricMetrics.advanceWidth;
 			     lyricScrollAnimation.start();
+		     }
 		     }
 	     }
     }
@@ -235,7 +243,12 @@ PlasmoidItem {
     function handleAsTextChanged(){
 	    reset()
 	    if(Plasmoid.status){
+		    if (lyricSource.asText===""){
+			  lyricsWTimes.append({time: 0, lyric: currentMediaTitle})
+		}
 		    parseLyric(lyricSource.asText)
+	}else {
+		lyricsWTimes.append({time: 0, lyric: "no play"})
 	}
 }
     Connections {
@@ -245,16 +258,6 @@ PlasmoidItem {
 		    handleAsTextChanged()
 	    }
     }
-    Timer {
-        id: compatibleModeTimer
-        interval: 200
-        running: false
-        repeat: true
-        onTriggered: {
-			parseLyric(lyricSource.asText);
-            }
-        }
-
     Timer {
         id: positionTimer
         interval: 1
@@ -421,12 +424,12 @@ PlasmoidItem {
         10. Set isYPMLyricFound to false, meaning that we haven't found the lyric yet(From YPM, YPM mode only).
     */
     function reset() {
-        compatibleModeTimer.stop();
         previousMediaTitle = currentMediaTitle;
         previousMediaArtists = currentMediaArtists;
         mpris2PreviousPlayerIdentity = mpris2CurrentPlayerIdentity;
         prevExpectedPlayerIdentity = "";
         lyricsWTimes.clear();
+
 	lyricScrollAnimation.stop();
 	prevNonEmptyLyric= ""
 	lyricListView.positionViewAtBeginning()
