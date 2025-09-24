@@ -30,8 +30,29 @@ PlasmoidItem {
 			    lyricSource.findAndGetAsText(mpris2Model.currentPlayer.identity);
 		    }
 	}
-    }
 
+    }
+    Connections {
+	    // The target of the connection is the object emitting the signal
+	    target: currentPlayer
+	    // The signal handler for positionChanged
+	    onPositionChanged: {
+		    // If the current playing media source in mpris2 datasource doesn't match the expected media source, then no lyric will be displayed
+		    if (Plasmoid.status){
+			    for (let i = 0; i < lyricsWTimes.count; i++) {
+				    if (lyricsWTimes.get(i).time >= mprisCurrentPlayingSongTimeMS) {
+					    currentLyricIndex = i > 0 ? i - 1 : 0;
+					    break
+				    }else{
+					    if (!i){continue}
+					    if(i>currentLyricIndex){
+						    currentLyricIndex =i
+					    }
+				    }
+			    }
+		    }
+				}
+    }
     // Seems obsolete by KDE Plasma 6.
     Mprisplasma.MultiplexerModel {
         id: multiplexerModel
@@ -96,9 +117,9 @@ PlasmoidItem {
 				if (currentLyricIndex + 2 < lyricsWTimes.count) {
 				lyricScrollAnimation.duration = (lyricsWTimes.get(currentLyricIndex+1).time - mprisCurrentPlayingSongTimeMS)/1000 ; //这是从计算器里验证的ms
 				}
-				if( (lyricsWTimes.get(currentLyricIndex+1).time - mprisCurrentPlayingSongTimeMS) <0)
+				if(currentLyricIndex +1 === lyricsWTimes.count)
 			     {
-				     lyricScrollAnimation.duration=lyricMetrics.advanceWidth * 200
+				     lyricScrollAnimation.duration=(mpris2Model.currentPlayer.length - mprisCurrentPlayingSongTimeMS)/1000
 			     }
 			     lyricScrollAnimation.from = contentX - width ;
 			     lyricScrollAnimation.to = contentX - width + lyricMetrics.advanceWidth;
@@ -265,26 +286,6 @@ PlasmoidItem {
             mpris2Model.currentPlayer.updatePosition();
         }
     }
-    Timer {
-	    id: lyricDisplayTimer
-	    interval: 1
-	    running: false
-	    repeat: true
-	    onTriggered: {
-		    // If the current playing media source in mpris2 datasource doesn't match the expected media source, then no lyric will be displayed
-		    for (let i = 0; i < lyricsWTimes.count; i++) {
-			    if (lyricsWTimes.get(i).time >= mprisCurrentPlayingSongTimeMS) {
-				currentLyricIndex = i > 0 ? i - 1 : 0;
-				break
-			    }else{
-				    if (!i){continue}
-				    if(i>currentLyricIndex){
-					currentLyricIndex =i
-				}
-			}
-		}
-	    }
-    }
     // Global constant
     // Current Media Title (Song's name), default is empty string
     property string currentMediaTitle: mpris2Model.currentPlayer?.track ?? ""
@@ -368,9 +369,6 @@ PlasmoidItem {
                 lyricsWTimes.append({time: timestamp, lyric: lyricPerRow});
             }
 	    }
-	    if (Plasmoid.status){
-		    lyricDisplayTimer.start()
-	}
     }
     function log() {
         console.log("currentMediaArtists: ", currentMediaArtists);
