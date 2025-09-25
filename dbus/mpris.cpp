@@ -150,9 +150,26 @@ void Mpris::onGetMetadataFinished(QDBusPendingCallWatcher *watcher)
 			if (metadata.contains("xesam:asText")) {
 					m_asText = metadata.value("xesam:asText").toString();
 					qDebug() << "Async metadata fetch. Lyrics:" << m_asText;
-			} else {
-					qDebug() << "Metadata does not contain xesam:asText.";
-					m_asText = "";
+			}  else {
+					if (metadata.contains("xesam:url")) {
+							QUrl mediaUrl = metadata.value("xesam:url").toUrl();
+							if (mediaUrl.isLocalFile()) {
+									QString localPath = mediaUrl.toLocalFile();
+									qDebug() << "Found media local file path:" << localPath;
+
+									// 重点：调用 TagLib 函数提取歌词
+									m_asText = getEmbeddedLyrics(localPath);
+
+							} else {
+									qDebug() << "Media is not a local file (URL:" << mediaUrl.toString() << "). Skipping TagLib extraction.";
+									// 如果不是本地文件，我们不能使用 TagLib
+									m_asText = "";
+							}
+					} else {
+							qDebug() << "Metadata does not contain xesam:url. Cannot use TagLib.";
+							// 如果连 xesam:url 都没有，我们无法定位文件
+							m_asText = "";
+					}
 			}
 	} else {
 			qDebug() << "Async metadata fetch failed. Error:" << reply.error().message();
@@ -161,7 +178,82 @@ void Mpris::onGetMetadataFinished(QDBusPendingCallWatcher *watcher)
 	emit asTextChanged();
 	watcher->deleteLater();
 }
+// -----------------------------------------------------------
+// TagLib 歌词提取实现
+// -----------------------------------------------------------
+QString Mpris::getEmbeddedLyrics(const QString& localFilePath)
+{
+		// 1. 文件打开和 FileRef 检查
+		TagLib::FileName tagLibPath = localFilePath.toLocal8Bit().constData();
+		TagLib::FileRef f(tagLibPath);
 
+		if (f.isNull() || !f.tag()) {
+				qDebug() << "TagLib Error: 无法打开文件或读取标签:" << localFilePath;
+				return QString();
+		}
+
+		// --- 只处理 ID3v2 USLT 帧 ---
+		TagLib::ID3v2::Tag* id3v2tag = dynamic_cast<TagLib::ID3v2::Tag*>(f.tag());
+
+		// 检查文件是否有 ID3v2 标签
+		if (id3v2tag) {
+				// 调试信息：输出 ID3v2 版本，帮助诊断
+				qDebug() << "TagLib Debug: ID3v2 Tag found. Major version:" << id3v2tag->header()->majorVersion();
+
+				// 尝试获取 USLT 帧列表 (v2.3/v2.4 帧 ID)
+				TagLib::ID3v2::FrameList frameList = id3v2tag->frameList("USLT");
+
+				if (frameList.isEmpty()) {
+						qDebug() << "TagLib Debug: USLT frame list is empty. Checking for v2.2 'ULT' frame as well.";
+						// 回退到 ID3v2.2 的帧 ID (ULT)
+						frameList = id3v2tag->frameList("ULT");
+				}
+				// 获取 USLT 帧列表
+				//TagLib::ID3v2::FrameList frameList = id3v2tag->frameList("USLT");
+
+				if (!frameList.isEmpty()) {
+						// 使用正确的命名空间 TagLib::ID3v2::
+						TagLib::ID3v2::UnsynchronizedLyricsFrame* usltFrame =
+								dynamic_cast<TagLib::ID3v2::UnsynchronizedLyricsFrame*>(frameList.front());
+
+						if (usltFrame) {
+								QString lyrics = QString::fromUtf8(usltFrame->text().toCString(true));
+
+								// 检查歌词内容是否为空
+								if (!lyrics.trimmed().isEmpty()) {
+										qDebug() << "TagLib: 成功从 ID3v2 USLT 帧读取歌词。";
+										return lyrics; // 成功，立即返回
+								}
+						}
+				}
+		}
+		// --- ID3v2 检查结束 ---
+		if (f.tag()) {
+						// TagLib::String tagLyrics = f.tag()->lyrics(); // <--- REMOVE THE OLD LINE
+
+						TagLib::PropertyMap properties = f.file()->properties();
+
+						// 检查 "LYRICS" 键。TagLib::PropertyMap 返回一个 TagLib::StringList。
+						if (properties.contains("LYRICS") && !properties["LYRICS"].isEmpty()) {
+
+								// 歌词可能存储为列表中的第一个元素
+								TagLib::String tagLyrics = properties["LYRICS"].front();
+
+								if (!tagLyrics.isEmpty()) {
+										QString lyrics = QString::fromUtf8(tagLyrics.toCString(true));
+
+										if (!lyrics.trimmed().isEmpty()) {
+												qDebug() << "TagLib: 成功从通用 'LYRICS' 标签读取歌词 (e.g., Vorbis Comment/FLAC)。";
+												return lyrics; // 成功，立即返回
+										}
+								}
+						}
+		}
+
+		// 如果 ID3v2 标签不存在、不包含 USLT 帧，或 USLT 帧为空，则返回空字符串。
+		qDebug() << "TagLib Info: 文件元数据中未找到嵌入歌词 。";
+		return QString();
+}
 void Mpris::disconnectFromMprisService()
 {
 		if (!m_serviceName.isEmpty()) {
@@ -201,8 +293,25 @@ void Mpris::onPropertiesChanged(const QString &interfaceName, const QVariantMap 
 						m_asText = asTextVariant.toString();
 						qDebug() << "  xesam:asText found in metadata. New value:" << m_asText;
 				} else {
-						// 如果属性不存在或类型不正确，则清空歌词
-						m_asText = "";
+						if (metadata.contains("xesam:url")) {
+								QUrl mediaUrl = metadata.value("xesam:url").toUrl();
+								if (mediaUrl.isLocalFile()) {
+										QString localPath = mediaUrl.toLocalFile();
+										qDebug() << "Found media local file path:" << localPath;
+
+										// 重点：调用 TagLib 函数提取歌词
+										m_asText = getEmbeddedLyrics(localPath);
+
+								} else {
+										qDebug() << "Media is not a local file (URL:" << mediaUrl.toString() << "). Skipping TagLib extraction.";
+										// 如果不是本地文件，我们不能使用 TagLib
+										m_asText = "";
+								}
+						} else {
+								qDebug() << "Metadata does not contain xesam:url. Cannot use TagLib.";
+								// 如果连 xesam:url 都没有，我们无法定位文件
+								m_asText = "";
+						}
 				}
 
 				// 只有当歌词内容真正改变时才发出信号

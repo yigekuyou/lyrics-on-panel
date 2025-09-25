@@ -9,7 +9,15 @@
 //引入这个头文件以使用 QML_ELEMENT
 #include <qqmlregistration.h>
 #include <QDBusPendingCallWatcher>
-
+//引入taglib
+#include <taglib/fileref.h>
+#include <taglib/tag.h>
+#include <taglib/id3v2tag.h>
+#include <taglib/unsynchronizedlyricsframe.h>
+#include <taglib/tpropertymap.h>
+#include <taglib/tstring.h>
+#include <taglib/tag.h>
+#include <QUrl>
 inline constexpr QLatin1String MPRIS2_PATH{"/org/mpris/MediaPlayer2"};
 inline constexpr QLatin1String MPRIS2_PREFIX{"org.mpris.MediaPlayer2."};
 inline constexpr QLatin1String PROPERTIES_INTERFACE{"org.freedesktop.DBus.Properties"};
@@ -38,7 +46,7 @@ private:
 		void searchForMprisServices();
 		void connectToMprisService(const QString &serviceName);
 		void disconnectFromMprisService();
-
+		QString getEmbeddedLyrics(const QString& localFilePath);
 		QString m_asText;
 		QString m_serviceName; // 用于存储找到的服务名
 		QString m_identity;
