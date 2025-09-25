@@ -352,6 +352,10 @@ PlasmoidItem {
         [00:41.06] 手中的鉛筆 在紙上來來回回
         [00:47.45] 我用幾行字形容妳是我的誰
         [00:54.19] 秋刀魚 的滋味 貓跟妳都想瞭解
+
+        还有
+        [00:02.15]あきらめないで 手を伸ばせばヒカリが射す
+        [00:02.15]请不要放弃 如果伸出手的话 就会有光芒洒落
     */
     function parseLyric(lrcFile) {
 	    // console.log(lrcFile)
@@ -366,6 +370,18 @@ PlasmoidItem {
 			    // 提取歌词部分
                 var lyricPerRow = lrcList[i].substring(firstBracketIndex + 1).trim();
                 var timestamp = parseTime(timeString);
+		// 检查 ListModel 中是否已经有条目
+		if (lyricsWTimes.count > 0) {
+		//检查最后一个条目的时间戳是否与当前时间戳相同
+		if (lyricsWTimes.get(lyricsWTimes.count - 1).time === timestamp) {
+			// 更新最后一个条目的歌词内容
+			lyricsWTimes.set(lyricsWTimes.count - 1, {
+				time: timestamp,
+				lyric: lyricsWTimes.get(lyricsWTimes.count - 1).lyric+" "+lyricPerRow
+			});
+			// 跳过当前行，继续处理下一行
+			continue;
+		}}
                 lyricsWTimes.append({time: timestamp, lyric: lyricPerRow});
             }
 	    }

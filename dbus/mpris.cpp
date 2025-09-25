@@ -222,6 +222,7 @@ QString Mpris::getEmbeddedLyrics(const QString& localFilePath)
 								// 检查歌词内容是否为空
 								if (!lyrics.trimmed().isEmpty()) {
 										qDebug() << "TagLib: 成功从 ID3v2 USLT 帧读取歌词。";
+										qDebug() <<lyrics ;
 										return lyrics; // 成功，立即返回
 								}
 						}
@@ -229,10 +230,7 @@ QString Mpris::getEmbeddedLyrics(const QString& localFilePath)
 		}
 		// --- ID3v2 检查结束 ---
 		if (f.tag()) {
-						// TagLib::String tagLyrics = f.tag()->lyrics(); // <--- REMOVE THE OLD LINE
-
 						TagLib::PropertyMap properties = f.file()->properties();
-
 						// 检查 "LYRICS" 键。TagLib::PropertyMap 返回一个 TagLib::StringList。
 						if (properties.contains("LYRICS") && !properties["LYRICS"].isEmpty()) {
 
@@ -244,6 +242,7 @@ QString Mpris::getEmbeddedLyrics(const QString& localFilePath)
 
 										if (!lyrics.trimmed().isEmpty()) {
 												qDebug() << "TagLib: 成功从通用 'LYRICS' 标签读取歌词 (e.g., Vorbis Comment/FLAC)。";
+												qDebug() <<lyrics ;
 												return lyrics; // 成功，立即返回
 										}
 								}
