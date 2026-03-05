@@ -283,7 +283,9 @@ PlasmoidItem {
         running: true
         repeat: true
         onTriggered: {
-            mpris2Model.currentPlayer.updatePosition();
+			if (mpris2Model.currentPlayer) {
+							mpris2Model.currentPlayer.updatePosition();
+						}
         }
     }
     // Global constant
