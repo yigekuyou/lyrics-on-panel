@@ -4,8 +4,6 @@ import QtQuick.Layouts
 import io.github.lyric
 
 Window {
-    width: 400
-    height: 300
     visible: true
     title: "MPRIS Test"
 
@@ -27,8 +25,7 @@ Window {
 
         Connections {
             target: mpris
-            function onAsTextChanged() {
-                // Log when asTextChanged signal is triggered
+            function onAsTextChanged() {// Log when asTextChanged signal is triggered
                 //console.log("asTextChanged signal was triggered!");
                 // Log the new value of asText
                 //console.log("New asText value:", mpris.asText);
@@ -42,7 +39,7 @@ Window {
             onClicked: {
                 // Log the function call and the identity being used
                 //console.log("Calling findAndGetAsText with identity:", identityInput.text);
-                mpris.findAndGetAsText(identityInput.text);
+                mpris.findAndGetAsText(identityInput.text)
             }
         }
 
@@ -60,10 +57,10 @@ Window {
                 // Add debug logging to see which condition is met
                 if (mpris.asText.length > 0) {
                     //console.log("Status: Lyrics found.");
-                    return "";
+                    return ""
                 } else {
                     //console.log("Status: No lyrics for the current song.");
-                    return "No lyrics for the current song.";
+                    return "No lyrics for the current song."
                 }
             }
         }
@@ -74,7 +71,5 @@ Window {
             wrapMode: Text.Wrap
             Layout.fillWidth: true
         }
-
     }
-
 }
