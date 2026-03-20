@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import io.github.lyric
+import io.github.yigekuyou.lyric
 
 Window {
     visible: true

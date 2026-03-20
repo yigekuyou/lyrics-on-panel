@@ -4,7 +4,7 @@ project(dbuslyric VERSION 0.1 LANGUAGES CXX)
 find_package(Qt6 COMPONENTS Quick DBus Qml REQUIRED)
 find_package(Taglib REQUIRED)
 ecm_add_qml_module(dbuslyric
-    URI com.github.lighthomo.lyrics
+    URI com.github.yigekuyou.lyrics
     GENERATE_PLUGIN_SOURCE
     VERSION 1.0
     QML_TYPES mpris.h mpris.cpp)
