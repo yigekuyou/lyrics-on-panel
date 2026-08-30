@@ -1,75 +1,126 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import io.github.yigekuyou.lyric
+import com.github.yigekuyou.lyrics
 
 Window {
     visible: true
-    title: "MPRIS Test"
+    width: 450
+    height: 550
+    title: "MPRIS Multi-Test"
 
-    // Instantiate the Mpris C++ class as a QML element
+    // 实例 1：用于测试 identity 动态查找 (findAndGetAsText)
     Mpris {
-        id: mpris
+        id: mprisByIdentity
+    }
+
+    // 实例 2：用于测试指定 serviceName 直连 (connectToServiceByName / serviceName 属性)
+    Mpris {
+        id: mprisByServiceName
     }
 
     ColumnLayout {
-        anchors.centerIn: parent
-        spacing: 10
+        anchors.fill: parent
+        anchors.margins: 15
+        spacing: 12
 
-        TextField {
-            id: identityInput
-            placeholderText: "Enter media player identity (e.g., vlc, mpv)"
-            Layout.fillWidth: true
-            onAccepted: findButton.clicked()
-        }
-
-        Connections {
-            target: mpris
-            function onAsTextChanged() {// Log when asTextChanged signal is triggered
-                //console.log("asTextChanged signal was triggered!");
-                // Log the new value of asText
-                //console.log("New asText value:", mpris.asText);
-            }
-        }
-
-        Button {
-            id: findButton
-            text: "Find and Get asText"
-            Layout.fillWidth: true
-            onClicked: {
-                // Log the function call and the identity being used
-                //console.log("Calling findAndGetAsText with identity:", identityInput.text);
-                mpris.findAndGetAsText(identityInput.text)
-            }
-        }
-
+        // ==================== 测试方法一：Identity 动态查找 ====================
         Label {
-            text: "Now playing:"
+            text: "测试方法一：通过 Identity 查找 (findAndGetAsText)"
             font.bold: true
         }
 
-        // Add a new Label to show status messages
-        Label {
-            id: statusLabel
+        RowLayout {
             Layout.fillWidth: true
-            horizontalAlignment: Text.AlignHCenter
-            text: {
-                // Add debug logging to see which condition is met
-                if (mpris.asText.length > 0) {
-                    //console.log("Status: Lyrics found.");
-                    return ""
-                } else {
-                    //console.log("Status: No lyrics for the current song.");
-                    return "No lyrics for the current song."
+            spacing: 8
+
+            TextField {
+                id: identityInput
+                Layout.fillWidth: true
+                placeholderText: "输入播放器标识 (例如: vlc, spotify)"
+                text: "vil"
+                onAccepted: findByIdentityBtn.clicked()
+            }
+
+            Button {
+                id: findByIdentityBtn
+                text: "查找"
+                onClicked: {
+                    console.log("方法一: 调用 findAndGetAsText, identity =", identityInput.text);
+                    mprisByIdentity.findAndGetAsText(identityInput.text);
                 }
             }
         }
 
         Label {
-            id: asTextOutput
-            text: mpris.asText
-            wrapMode: Text.Wrap
+            text: "方法一歌词输出:"
+            font.italic: true
+        }
+
+        ScrollView {
             Layout.fillWidth: true
+            Layout.preferredHeight: 80
+            background: Rectangle {
+                color: "#f0f0f0"
+                border.color: "#ccc"
+            }
+
+            TextArea {
+                readOnly: true
+                text: mprisByIdentity.asText
+                wrapMode: TextArea.Wrap
+            }
+        }
+
+        MenuSeparator {
+            Layout.fillWidth: true
+        }
+
+        // ==================== 测试方法二：Service Name 直连 ====================
+        Label {
+            text: "测试方法二：通过完整服务名直连 (serviceName)"
+            font.bold: true
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 8
+
+            TextField {
+                id: serviceNameInput
+                Layout.fillWidth: true
+                placeholderText: "完整 D-Bus 服务名 (例如: org.mpris.MediaPlayer2.vlc.instance1)"
+                onAccepted: connectByServiceBtn.clicked()
+            }
+
+            Button {
+                id: connectByServiceBtn
+                text: "直连"
+                onClicked: {
+                    console.log("方法二: 调用 connectToServiceByName, serviceName =", serviceNameInput.text);
+                    mprisByServiceName.connectToServiceByName(serviceNameInput.text);
+                }
+            }
+        }
+
+        Label {
+            text: "方法二歌词输出:"
+            font.italic: true
+        }
+
+        ScrollView {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 80
+            background: Rectangle {
+                color: "#f0f0f0"
+                border.color: "#ccc"
+            }
+
+            TextArea {
+                readOnly: true
+                text: mprisByServiceName.asText
+                wrapMode: TextArea.Wrap
+            }
         }
     }
 }

@@ -27,12 +27,14 @@ class Mpris : public QObject {
 		Q_OBJECT
 		QML_ELEMENT
 		Q_PROPERTY(QString asText READ asText NOTIFY asTextChanged)
+		Q_PROPERTY(QString serviceName READ serviceName WRITE setServiceName NOTIFY serviceNameChanged)
 public:
 		explicit Mpris(QObject *parent = nullptr);
 		QString asText() const;
+		QString serviceName() const;
 		//获取歌词
 		Q_INVOKABLE void findAndGetAsText(const QString &identity = "");
-
+		Q_INVOKABLE void connectToServiceByName(const QString &serviceName = "");
 private slots:
 		void onServiceRegistered(const QString &serviceName);
 		void onServiceUnregistered(const QString &serviceName);
@@ -40,8 +42,10 @@ private slots:
 		void onListNamesFinished(QDBusPendingCallWatcher *watcher);
 		void onGetMetadataFinished(QDBusPendingCallWatcher *watcher);
 		void onGetIdentityFinished(QDBusPendingCallWatcher *watcher);
+		void setServiceName(const QString &serviceName); // 设置服务名并触发连接
 signals:
 		void asTextChanged();
+		void serviceNameChanged();
 private:
 		void searchForMprisServices();
 		void connectToMprisService(const QString &serviceName);

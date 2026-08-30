@@ -102,6 +102,40 @@ void Mpris::onServiceUnregistered(const QString &serviceName)
 				disconnectFromMprisService();
 		}
 }
+QString Mpris::serviceName() const
+{
+		return m_serviceName;
+}
+
+void Mpris::setServiceName(const QString &serviceName)
+{
+		if (m_serviceName == serviceName) {
+				return;
+		}
+
+		qDebug() << "Setting new serviceName and connecting:" << serviceName;
+
+		if (serviceName.isEmpty()) {
+				disconnectFromMprisService();
+		} else {
+				connectToMprisService(serviceName);
+		}
+
+		emit serviceNameChanged();
+}
+
+void Mpris::connectToServiceByName(const QString &serviceName)
+{
+		qDebug() << "Explicitly connecting to service by name:" << serviceName;
+		if (serviceName.isEmpty()) {
+				qWarning() << "Service name is empty, cannot connect.";
+				return;
+		}
+		connectToMprisService(serviceName);
+		if (m_serviceName != serviceName) {
+				emit serviceNameChanged();
+		}
+}
 void Mpris::connectToMprisService(const QString &serviceName)
 {
 		if (m_serviceName == serviceName) {
